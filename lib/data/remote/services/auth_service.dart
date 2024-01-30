@@ -36,6 +36,7 @@ class AuthService {
       key: 'token_expiration',
       value: DateFormat('dd/MM/yyyy HH:mm').format(auth.expiration),
     );
+
     await storage.write(key: 'id', value: player.id?.toString());
     await storage.write(key: 'email', value: player.email);
     await storage.write(key: 'name', value: player.name);
