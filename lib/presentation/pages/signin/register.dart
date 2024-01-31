@@ -250,17 +250,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
                             _authService
                                 .register(
-                                    PlayerModel(
-                                      email: _controllerEmail.text,
-                                      name: _controllerUsername.text,
-                                      idPlayerPosition: int.parse(
-                                          _selectedPositionValue ?? '4'),
-                                      nickname: _controllerNickName.text,
-                                      password: _controllerPassword.text,
-                                      confirmPassword:
-                                          _controllerConFirmPassword.text,
-                                    ),
-                                    context)
+                              PlayerModel(
+                                email: _controllerEmail.text,
+                                name: _controllerUsername.text,
+                                idPlayerPosition:
+                                    int.parse(_selectedPositionValue ?? '4'),
+                                nickname: _controllerNickName.text,
+                                password: _controllerPassword.text,
+                                confirmPassword:
+                                    _controllerConFirmPassword.text,
+                              ),
+                              context,
+                            )
                                 .then(
                               (registered) {
                                 setState(() {
@@ -281,6 +282,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 throw 'Problema ao cadastrar o usuário';
                               },
                             ).catchError(
+                              // ignore: body_might_complete_normally_catch_error
                               (e) {
                                 setState(() {
                                   isLoading = false;
