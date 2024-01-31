@@ -8,11 +8,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 3), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('HomePage'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Loading Overlay Example'),
+      ),
+      body: Stack(
+        children: [
+          const Center(
+            child: Text('Conteúdo existente'),
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }

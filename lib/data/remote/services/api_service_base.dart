@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:perebas_fc_app/config.dart';
+import 'package:perebas_fc_app/data/remote/services/auth_service.dart';
 
-abstract class ApiServiceBase<T> {
+abstract class ApiServiceBase {
   final String apiBaseUrl = AppConfig.apiBaseUrl;
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  final AuthService _authService = AuthService();
 
   ApiServiceBase();
 
@@ -15,7 +17,7 @@ abstract class ApiServiceBase<T> {
     return token;
   }
 
-  Future<T> get(String endpoint) async {
+  Future<dynamic> get(String endpoint) async {
     final String token = await _getToken();
 
     final response = await http.get(
@@ -27,14 +29,18 @@ abstract class ApiServiceBase<T> {
       },
     );
 
-    if (response.statusCode == 200) {
-      return _decodeResponse(response.body);
-    } else {
-      throw Exception('Erro na solicitação: ${response.statusCode}');
+    switch (response.statusCode) {
+      case 200:
+        return _decodeResponse(response.body);
+      case 401:
+        await _authService.logout();
+        break;
     }
+
+    throw 'Erro na solicitação: ${response.statusCode}';
   }
 
-  Future<T> post(String endpoint, T object) async {
+  Future<dynamic> post(String endpoint, Map<String, dynamic> object) async {
     final String token = await _getToken();
 
     final response = await http.post(
@@ -47,14 +53,18 @@ abstract class ApiServiceBase<T> {
       },
     );
 
-    if (response.statusCode == 200) {
-      return _decodeResponse(response.body);
-    } else {
-      throw Exception('Erro na solicitação: ${response.statusCode}');
+    switch (response.statusCode) {
+      case 200:
+        return _decodeResponse(response.body);
+      case 401:
+        await _authService.logout();
+        break;
     }
+
+    throw 'Erro na solicitação: ${response.statusCode}';
   }
 
-  Future<T> put(String endpoint, T object) async {
+  Future<dynamic> put(String endpoint, Map<String, dynamic> object) async {
     final String token = await _getToken();
 
     final response = await http.put(
@@ -67,27 +77,35 @@ abstract class ApiServiceBase<T> {
       },
     );
 
-    if (response.statusCode == 200) {
-      return _decodeResponse(response.body);
-    } else {
-      throw Exception('Erro na solicitação: ${response.statusCode}');
+    switch (response.statusCode) {
+      case 200:
+        return _decodeResponse(response.body);
+      case 401:
+        await _authService.logout();
+        break;
     }
+
+    throw 'Erro na solicitação: ${response.statusCode}';
   }
 
-  Future<T> delete(String endpoint) async {
+  Future<dynamic> delete(String endpoint) async {
     final String token = await _getToken();
 
     final response = await http.delete(Uri.parse('$apiBaseUrl/$endpoint'),
         headers: {'Authorization': 'Bearer $token'});
 
-    if (response.statusCode == 200) {
-      return _decodeResponse(response.body);
-    } else {
-      throw Exception('Erro na solicitação: ${response.statusCode}');
+    switch (response.statusCode) {
+      case 200:
+        return _decodeResponse(response.body);
+      case 401:
+        await _authService.logout();
+        break;
     }
+
+    throw 'Erro na solicitação: ${response.statusCode}';
   }
 
-  T _decodeResponse(String responseBody) {
+  dynamic _decodeResponse(String responseBody) {
     final dynamic decoded = json.decode(responseBody);
     return decoded;
   }
